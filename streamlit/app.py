@@ -1,24 +1,17 @@
 import streamlit as st
-from pages import test_case_selection, model_evaluation, visualization, home
-# from requests import pathlib
-import sys
-
-
-
-
+from pages import test_case_selection, model_evaluation, visualization
+from IPython import embed
 
 def main():
-    print(sys.path)
-    st.set_page_config(page_title="GAIA Model Evaluation", layout="wide")
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["Test Case Selection", "Model Evaluation", "Visualization"])
+    page = st.sidebar.radio("Go to", ["test_case_selection", "Model Evaluation", "Visualization"])
 
-    if page == "Test Case Selection":
-        test_case_selection.show()
-    elif page == "Model Evaluation":
+    if page == "Model Evaluation":
         model_evaluation.show()
     elif page == "Visualization":
         visualization.show()
+    else:
+        test_case_selection.show()
 
 if __name__ == "__main__":
-    main()
+    main()                        

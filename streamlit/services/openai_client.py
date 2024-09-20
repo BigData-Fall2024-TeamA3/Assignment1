@@ -1,6 +1,7 @@
 import openai
+import streamlit as st
 
-openai.api_key = '' # move this to a .env file
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 def get_model_answer(question):
     response = openai.Completion.create(

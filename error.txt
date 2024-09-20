@@ -1,0 +1,332 @@
+
+In [1]: st.secrets["BUCKET_NAME"]
+Out[1]: 'bigdatadamg7245'
+
+In [2]: bucket_name
+Out[2]: 'bigdatadamg7245'
+
+In [3]: s3_file_key
+Out[3]: 'staging/2023/validation/metadata.jsonl'
+
+In [4]: x = s3.get_object(Bucket=bucket_name, Key=s3_file_key)
+---------------------------------------------------------------------------
+NoCredentialsError                        Traceback (most recent call last)
+Cell In[4], line 1
+----> 1 x = s3.get_object(Bucket=bucket_name, Key=s3_file_key)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:569, in ClientCreator._create_api_method.<locals>._api_call(self, *args, **kwargs)
+    565     raise TypeError(
+    566         f"{py_operation_name}() only accepts keyword arguments."
+    567     )
+    568 # The "self" in this scope is referring to the BaseClient.
+--> 569 return self._make_api_call(operation_name, kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:1005, in BaseClient._make_api_call(self, operation_name, api_params)
+   1001     maybe_compress_request(
+   1002         self.meta.config, request_dict, operation_model
+   1003     )
+   1004     apply_request_checksum(request_dict)
+-> 1005     http, parsed_response = self._make_request(
+   1006         operation_model, request_dict, request_context
+   1007     )
+   1009 self.meta.events.emit(
+   1010     f'after-call.{service_id}.{operation_name}',
+   1011     http_response=http,
+   (...)
+   1014     context=request_context,
+   1015 )
+   1017 if http.status_code >= 300:
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:1029, in BaseClient._make_request(self, operation_model, request_dict, request_context)
+   1027 def _make_request(self, operation_model, request_dict, request_context):
+   1028     try:
+-> 1029         return self._endpoint.make_request(operation_model, request_dict)
+   1030     except Exception as e:
+   1031         self.meta.events.emit(
+   1032             f'after-call-error.{self._service_model.service_id.hyphenize()}.{operation_model.name}',
+   1033             exception=e,
+   1034             context=request_context,
+   1035         )
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:119, in Endpoint.make_request(self, operation_model, request_dict)
+    113 def make_request(self, operation_model, request_dict):
+    114     logger.debug(
+    115         "Making request for %s with params: %s",
+    116         operation_model,
+    117         request_dict,
+    118     )
+--> 119     return self._send_request(request_dict, operation_model)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:196, in Endpoint._send_request(self, request_dict, operation_model)
+    194 context = request_dict['context']
+    195 self._update_retries_context(context, attempts)
+--> 196 request = self.create_request(request_dict, operation_model)
+    197 success_response, exception = self._get_response(
+    198     request, operation_model, context
+    199 )
+    200 while self._needs_retry(
+    201     attempts,
+    202     operation_model,
+   (...)
+    205     exception,
+    206 ):
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:132, in Endpoint.create_request(self, params, operation_model)
+    130     service_id = operation_model.service_model.service_id.hyphenize()
+    131     event_name = f'request-created.{service_id}.{operation_model.name}'
+--> 132     self._event_emitter.emit(
+    133         event_name,
+    134         request=request,
+    135         operation_name=operation_model.name,
+    136     )
+    137 prepared_request = self.prepare_request(request)
+    138 return prepared_request
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:412, in EventAliaser.emit(self, event_name, **kwargs)
+    410 def emit(self, event_name, **kwargs):
+    411     aliased_event_name = self._alias_event_name(event_name)
+--> 412     return self._emitter.emit(aliased_event_name, **kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:256, in HierarchicalEmitter.emit(self, event_name, **kwargs)
+    245 def emit(self, event_name, **kwargs):
+    246     """
+    247     Emit an event by name with arguments passed as keyword args.
+    248 
+   (...)
+    254              handlers.
+    255     """
+--> 256     return self._emit(event_name, kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:239, in HierarchicalEmitter._emit(self, event_name, kwargs, stop_on_response)
+    237 for handler in handlers_to_call:
+    238     logger.debug('Event %s: calling handler %s', event_name, handler)
+--> 239     response = handler(**kwargs)
+    240     responses.append((handler, response))
+    241     if stop_on_response and response is not None:
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py:105, in RequestSigner.handler(self, operation_name, request, **kwargs)
+    100 def handler(self, operation_name=None, request=None, **kwargs):
+    101     # This is typically hooked up to the "request-created" event
+    102     # from a client's event emitter.  When a new request is created
+    103     # this method is invoked to sign the request.
+    104     # Don't call this method directly.
+--> 105     return self.sign(operation_name, request)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py:197, in RequestSigner.sign(self, operation_name, request, region_name, signing_type, expires_in, signing_name)
+    194     else:
+    195         raise e
+--> 197 auth.add_auth(request)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/auth.py:423, in SigV4Auth.add_auth(self, request)
+    421 def add_auth(self, request):
+    422     if self.credentials is None:
+--> 423         raise NoCredentialsError()
+    424     datetime_now = datetime.datetime.utcnow()
+    425     request.context['timestamp'] = datetime_now.strftime(SIGV4_TIMESTAMP)
+
+NoCredentialsError: Unable to locate credentials
+
+In [5]: exit()
+
+2024-09-20 14:48:33.697 Uncaught app exception
+Traceback (most recent call last):
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 88, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 590, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/streamlit/app.py", line 17, in <module>
+    main()
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/streamlit/app.py", line 14, in main
+    test_case_selection.show()
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/streamlit/pages/test_case_selection.py", line 13, in show
+    chat_interface()
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/streamlit/pages/test_case_selection.py", line 51, in chat_interface
+    metadata_df = load_jsonl_from_s3(bucket_name, s3_file_key)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/streamlit/runtime/caching/cache_utils.py", line 210, in __call__
+    return self._get_or_create_cached_value(args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/streamlit/runtime/caching/cache_utils.py", line 235, in _get_or_create_cached_value
+    return self._handle_cache_miss(cache, value_key, func_args, func_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/streamlit/runtime/caching/cache_utils.py", line 288, in _handle_cache_miss
+    computed_value = self._info.func(*func_args, **func_kwargs)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/streamlit/pages/test_case_selection.py", line 20, in load_jsonl_from_s3
+    file_obj = s3.get_object(Bucket=bn, Key=s3_fk)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py", line 569, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py", line 1005, in _make_api_call
+    http, parsed_response = self._make_request(
+                            ^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py", line 1029, in _make_request
+    return self._endpoint.make_request(operation_model, request_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py", line 119, in make_request
+    return self._send_request(request_dict, operation_model)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py", line 196, in _send_request
+    request = self.create_request(request_dict, operation_model)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py", line 132, in create_request
+    self._event_emitter.emit(
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py", line 412, in emit
+    return self._emitter.emit(aliased_event_name, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py", line 256, in emit
+    return self._emit(event_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py", line 239, in _emit
+    response = handler(**kwargs)
+               ^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py", line 105, in handler
+    return self.sign(operation_name, request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py", line 197, in sign
+    auth.add_auth(request)
+  File "/Users/nivedhithaagovindaraj/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/auth.py", line 423, in add_auth
+    raise NoCredentialsError()
+botocore.exceptions.NoCredentialsError: Unable to locate credentials
+^C  Stopping...
+❯ streamlit run streamlit/app.py
+
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://10.110.213.66:8501
+
+  For better performance, install the Watchdog module:
+
+  $ xcode-select --install
+  $ pip install watchdog
+            
+Python 3.12.5 (main, Aug  6 2024, 19:08:49) [Clang 15.0.0 (clang-1500.3.9.4)]
+Type 'copyright', 'credits' or 'license' for more information
+IPython 8.27.0 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: bucket_name
+Out[1]: 'bigdatadamg7245'
+
+In [2]: s3_file_key
+Out[2]: 'staging/2023/validation/metadata.jsonl'
+
+In [3]: s3.get_object(Bucket='bigdatadamg7245',Key='staging/2023/validation/metadata.jsonl')
+---------------------------------------------------------------------------
+NoCredentialsError                        Traceback (most recent call last)
+Cell In[3], line 1
+----> 1 s3.get_object(Bucket='bigdatadamg7245',Key='staging/2023/validation/metadata.jsonl')
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:569, in ClientCreator._create_api_method.<locals>._api_call(self, *args, **kwargs)
+    565     raise TypeError(
+    566         f"{py_operation_name}() only accepts keyword arguments."
+    567     )
+    568 # The "self" in this scope is referring to the BaseClient.
+--> 569 return self._make_api_call(operation_name, kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:1005, in BaseClient._make_api_call(self, operation_name, api_params)
+   1001     maybe_compress_request(
+   1002         self.meta.config, request_dict, operation_model
+   1003     )
+   1004     apply_request_checksum(request_dict)
+-> 1005     http, parsed_response = self._make_request(
+   1006         operation_model, request_dict, request_context
+   1007     )
+   1009 self.meta.events.emit(
+   1010     f'after-call.{service_id}.{operation_name}',
+   1011     http_response=http,
+   (...)
+   1014     context=request_context,
+   1015 )
+   1017 if http.status_code >= 300:
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/client.py:1029, in BaseClient._make_request(self, operation_model, request_dict, request_context)
+   1027 def _make_request(self, operation_model, request_dict, request_context):
+   1028     try:
+-> 1029         return self._endpoint.make_request(operation_model, request_dict)
+   1030     except Exception as e:
+   1031         self.meta.events.emit(
+   1032             f'after-call-error.{self._service_model.service_id.hyphenize()}.{operation_model.name}',
+   1033             exception=e,
+   1034             context=request_context,
+   1035         )
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:119, in Endpoint.make_request(self, operation_model, request_dict)
+    113 def make_request(self, operation_model, request_dict):
+    114     logger.debug(
+    115         "Making request for %s with params: %s",
+    116         operation_model,
+    117         request_dict,
+    118     )
+--> 119     return self._send_request(request_dict, operation_model)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:196, in Endpoint._send_request(self, request_dict, operation_model)
+    194 context = request_dict['context']
+    195 self._update_retries_context(context, attempts)
+--> 196 request = self.create_request(request_dict, operation_model)
+    197 success_response, exception = self._get_response(
+    198     request, operation_model, context
+    199 )
+    200 while self._needs_retry(
+    201     attempts,
+    202     operation_model,
+   (...)
+    205     exception,
+    206 ):
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/endpoint.py:132, in Endpoint.create_request(self, params, operation_model)
+    130     service_id = operation_model.service_model.service_id.hyphenize()
+    131     event_name = f'request-created.{service_id}.{operation_model.name}'
+--> 132     self._event_emitter.emit(
+    133         event_name,
+    134         request=request,
+    135         operation_name=operation_model.name,
+    136     )
+    137 prepared_request = self.prepare_request(request)
+    138 return prepared_request
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:412, in EventAliaser.emit(self, event_name, **kwargs)
+    410 def emit(self, event_name, **kwargs):
+    411     aliased_event_name = self._alias_event_name(event_name)
+--> 412     return self._emitter.emit(aliased_event_name, **kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:256, in HierarchicalEmitter.emit(self, event_name, **kwargs)
+    245 def emit(self, event_name, **kwargs):
+    246     """
+    247     Emit an event by name with arguments passed as keyword args.
+    248 
+   (...)
+    254              handlers.
+    255     """
+--> 256     return self._emit(event_name, kwargs)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/hooks.py:239, in HierarchicalEmitter._emit(self, event_name, kwargs, stop_on_response)
+    237 for handler in handlers_to_call:
+    238     logger.debug('Event %s: calling handler %s', event_name, handler)
+--> 239     response = handler(**kwargs)
+    240     responses.append((handler, response))
+    241     if stop_on_response and response is not None:
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py:105, in RequestSigner.handler(self, operation_name, request, **kwargs)
+    100 def handler(self, operation_name=None, request=None, **kwargs):
+    101     # This is typically hooked up to the "request-created" event
+    102     # from a client's event emitter.  When a new request is created
+    103     # this method is invoked to sign the request.
+    104     # Don't call this method directly.
+--> 105     return self.sign(operation_name, request)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/signers.py:197, in RequestSigner.sign(self, operation_name, request, region_name, signing_type, expires_in, signing_name)
+    194     else:
+    195         raise e
+--> 197 auth.add_auth(request)
+
+File ~/workspace/Assignment1/.venv/lib/python3.12/site-packages/botocore/auth.py:423, in SigV4Auth.add_auth(self, request)
+    421 def add_auth(self, request):
+    422     if self.credentials is None:
+--> 423         raise NoCredentialsError()
+    424     datetime_now = datetime.datetime.utcnow()
+    425     request.context['timestamp'] = datetime_now.strftime(SIGV4_TIMESTAMP)
+
+NoCredentialsError: Unable to locate credentials
