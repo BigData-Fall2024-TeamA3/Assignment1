@@ -1,6 +1,7 @@
+from streamlit.pages import home
 import streamlit as st
 from dotenv import load_dotenv
-from pages import test_case_selection, model_evaluation, visualization, home
+from pages import test_case_selection, model_evaluation, visualization
 # from requests import pathlib
 import sys
 
