@@ -7,27 +7,27 @@
 
 # TO DO
 - [ ] Setup
-    - [ ] Raw data insights - Niv
     - [ ] Preprocessing data and Migration script for s3 - Niv
     - [ ] Mock DB for visualization - Niv
-    - [ ] DB design validation
-- [ ] Set up template Streamlit app - Niv
+    - [ ] DB design validation 
+- [x] Set up template Streamlit app - Niv
 - [ ] Workflow 
     - [ ] Diagrams (Lucid chart) - Deepak
     - [ ] Pages
         - [ ] Sign up / Login Page (to maintain unique instance) - Extra
         - [ ] (Landing page) Validation test selection page
         - [ ] Validation case page
-        - [ ] Reports Page (Visualization)- Mau
 - [ ] Skeleton Diagrams
     - [ ] Update Task List - Mau
 - [ ] StreamLit functionalities
     - [ ] Skeleton APIs (Streamlit)
         - [ ] "Amazon S3 / snowflake" + "ORM" - Niv 
-        - [ ] "LLM" - Deepak
-        - [ ] 
+        - [x] "LLM" - Deepak 
         - [ ] Functionality 1: A user would select a specific test case available from the validation test file
+    - [ ] Deployment with streamlit env
+    - 
     (metadata.jsonl) (Logic) - Niv
+- [ ] Visualization - Deepak
 - [ ] Deployment: Deploy the streamlit app on the Streamlit public cloud
 
 # Ref
