@@ -5,14 +5,14 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 
 def show():
-# Azure SQL connection parameters (replace these with your actual details)
+# Azure SQL connection 
     server = 'damg-server-name.database.windows.net'
     database = 'damg_sql_db'
     username = 'damg_admin'
     password = 'Dadabi@123'
     driver = '{ODBC Driver 17 for SQL Server}'
     # Function to fetch data from Azure SQL
-    @st.cache_data(ttl=600)  # cache data for 10 minutes
+    @st.cache_data(ttl=600)  
     def fetch_data_from_azure():
         conn_str = f"DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}"
         conn = pyodbc.connect(conn_str)
@@ -28,9 +28,8 @@ def show():
     df = fetch_data_from_azure()
 
     # Clean up and convert the data
-    df['direct_response'] = df['direct_response'].str.strip()  # Remove any leading/trailing spaces
-    df['annotator_response'] = df['annotator_response'].str.strip()  # Remove any leading/trailing spaces
-
+    df['direct_response'] = df['direct_response'].str.strip()  
+    df['annotator_response'] = df['annotator_response'].str.strip() 
     # Convert to numeric, forcing invalid parsing to NaN
     df['direct_response'] = pd.to_numeric(df['direct_response'], errors='coerce')
     df['annotator_response'] = pd.to_numeric(df['annotator_response'], errors='coerce')
