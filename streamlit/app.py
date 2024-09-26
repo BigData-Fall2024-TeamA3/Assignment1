@@ -2,9 +2,8 @@ import streamlit as st
 
 import pyodbc
 import bcrypt
-import time 
 import visualization
-
+import test_case_selection
 
 
 def get_db_connection():
@@ -47,16 +46,27 @@ st.sidebar.title("Navigation")
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+
 # Redirect to visualization if logged in
 if st.session_state.logged_in:
-    st.success("Login successful!")
-    if st.sidebar.button("Logout"):
-        st.session_state.logged_in = False  # Set logged in state to False
-        st.session_state.signup_mode = False  # Reset signup mode if it was set
+    with st.sidebar:
+        if st.button("Visualization Page"):
+            st.session_state.page = 'visualization'
+        if st.button("Test Case Selection"):
+            st.session_state.page = 'test_case_selection'
+        if st.sidebar.button("Logout"):
+            st.session_state.logged_in = False  # Set logged in state to False
+            st.session_state.signup_mode = False  # Reset signup mode if it was set
+            st.session_state.page = None 
+    if 'page' not in st.session_state:
+        st.session_state.page = 'test_case_selection' 
+    if st.session_state.page == 'visualization':
+        visualization.show()  # Replace with your actual visualization function
+    elif st.session_state.page == 'test_case_selection':
+        test_case_selection.show()
          # Rerun to show the login page
 
     # Replace this with your visualization function
-    visualization.show()  
     # Replace this with your visualization function
 
 else:
@@ -72,7 +82,7 @@ else:
         if st.button("Login"):
             if login(username, password):
                 st.session_state.logged_in = True
-                  # Rerun the script to show the visualization page
+
             else:
                 st.error("Invalid username or password.")
 

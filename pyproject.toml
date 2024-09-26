@@ -13,7 +13,7 @@ numpy = "^2.1.1"
 matplotlib = "^3.9.2"
 seaborn = "^0.13.2"
 requests = "^2.32.3"
-openai = "^1.46.0"
+openai = "0.28"
 sqlalchemy = "^2.0.35"
 psycopg2-binary = "^2.9.9"
 pytest = "^8.3.3"
@@ -21,6 +21,8 @@ python-dotenv = "^1.0.1"
 ipython = "^8.27.0"
 boto3 = "^1.35.24"
 pyodbc = "^5.1.0"
+pypdf2 = "^3.0.1"
+pytesseract = "^0.3.13"
 
 
 [tool.poetry.group.dev.dependencies]
