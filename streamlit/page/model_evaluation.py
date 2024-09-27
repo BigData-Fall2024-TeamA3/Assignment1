@@ -18,7 +18,7 @@ from IPython import embed
 
 
 
-# Create a session with explicit credentials
+
 def show():
     env_path = pathlib.Path('.') / '.env'
 
@@ -32,10 +32,8 @@ def show():
         region_name='us-east-2'
     )
 
-    # Use the session to create a client for an AWS service
+
     s3 = session.client('s3')
-
-
 
     driver = st.secrets['driver']
     server = st.secrets['server']
@@ -43,14 +41,12 @@ def show():
     username = st.secrets['username']
     password = st.secrets['password']
     connection_string = f'DRIVER={driver};SERVER={server};PORT=1433;DATABASE={database};UID={username};PWD={password}'
-    # print(f'DRIVER={driver};SERVER={server};PORT=1433;DATABASE={database};UID={username};PWD={password}')
-    # embed()
+
     tokenizer = tiktoken.encoding_for_model('gpt-4o')
     MAX_TOKENS = 30000
 
 
-    # Initialize the S3 client using boto3
-    # s3 = boto3.client('s3')
+
     bucket_name = st.secrets['bucket_name']
     s3_file_key = st.secrets['s3_file_key']
     s3_file_key_path = st.secrets['s3_file_key_path']
@@ -66,19 +62,18 @@ def show():
         """Truncates the prompt to fit within the allowed token limit."""
         tokens = tokenizer.encode(prompt)
         
-        # If prompt tokens exceed the max, truncate it
+
         if len(tokens) > max_tokens:
             truncated_tokens = tokens[:max_tokens]
             truncated_prompt = tokenizer.decode(truncated_tokens)
             return truncated_prompt
         return prompt
 
-    # Function to download file content from S3
+
     def download_file_from_s3(bucket_name, s3_file_key):
         try:
-            # Fetch the file object from S3
             file_obj = s3.get_object(Bucket=bucket_name, Key=s3_file_key)
-            # Read the file content into memory
+
             file_content = file_obj['Body'].read()
             
             return file_content
@@ -86,14 +81,12 @@ def show():
             st.error(f"Error downloading file from S3: {e}")
             return None
 
-    # Function to transcribe MP3 file using Whisper API
     def transcribe_audio(mp3_file_content):
         try:
             temp_mp3_path = "/tmp/temp_audio.mp3"
             with open(temp_mp3_path, 'wb') as f:
                 f.write(mp3_file_content)
 
-            # Use OpenAI Whisper to transcribe the audio file
             with open(temp_mp3_path, 'rb') as audio_file:
                 transcript = openai.Audio.transcribe(
                     model="whisper-1",
@@ -150,7 +143,6 @@ def show():
     def extract_text_from_pdb(pdb_file_content):
         try:
             pdb_data = pdb_file_content.decode('utf-8')
-            # Optionally, you could parse and process the PDB content further
             return pdb_data
         except Exception as e:
             st.error(f"Error extracting data from PDB file: {e}")
@@ -198,13 +190,11 @@ def show():
 
 
 
-    # Function to insert or update data using pyodbc
+    # Function to insert or update data
     def insert_or_update_metadata(task_id, task_level, direct_response, annotator_response):
         try:
-            # Open a cursor
             cursor = conn.cursor()
             
-            # Check if the task_id already exists
             select_query = "SELECT task_id FROM ai.metadata WHERE task_id = ?"
             cursor.execute(select_query, (task_id,))
             result = cursor.fetchone()
@@ -221,7 +211,7 @@ def show():
                 cursor.execute(update_query, (f'{direct_response}', f'{direct_response}', f'{annotator_response}', f'{task_id}'))
                 st.success(f"Task {task_id} updated successfully.")
             else:
-                # If task_id doesn't exist, insert a new record
+
                 insert_query = """
                     INSERT INTO ai.metadata (task_id, task_level,direct_response)
                     VALUES (?, ?, ?)
@@ -229,14 +219,13 @@ def show():
                 cursor.execute(insert_query, (f'{task_id}', f'{task_level}',f'{direct_response}'))
                 st.success(f"Task {task_id} inserted successfully.")
             
-            # Commit the changes
+
             conn.commit()
         
         except Exception as e:
             st.error(f"Error executing SQL query: {e}")
             conn.rollback()
         finally:
-            # Close the cursor after execution
             cursor.close()
 
     # Function to query OpenAI model with a selected question
@@ -252,14 +241,12 @@ def show():
                     prompt = f"Question: {question}\nAnnotator Metadata: {json.dumps(metadata)}"
                 else:
                     prompt = f"Question: {question}"
-
-            # print(prompt)
             # st.write(prompt)
             response = openai.ChatCompletion.create(
                 model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": prompt+"provide only final answer"}
+                    {"role": "user", "content": prompt+"provide only final answer. if the answer is numeric, provide both numeric as well as in words."}
                 ],
                 max_tokens=1500
             )
@@ -307,9 +294,9 @@ def show():
                 if file_path:
                     # Download the file from S3
                     file_content = download_file_from_s3(bucket_name, file_path)
-                    # Get the file extension
+
                     file_extension = os.path.splitext(file_path)[1].lower()
-                    # print(file_extension)
+
                     if file_content and file_extension:
                         processed_content = process_file_based_on_extension(file_content, file_extension)
                         prompt_token_count = count_tokens(processed_content) if file_extension in ['.png', '.jpg', '.jpeg', '.pdf','.mp3','.pdb'] else 0
@@ -343,11 +330,11 @@ def show():
                                 st.error("Failed to get a response from OpenAI.")
                     else:
                         st.error("Please select a question first.")
-    @st.cache_data(ttl=600)  # cache data for 10 minutes
+    @st.cache_data(ttl=600)
     def fetch_data_from_azure():
         
         # Query your table
-        query = "SELECT * FROM ai.metadata"  # Replace with your table name
+        query = "SELECT * FROM ai.metadata" 
         df = pd.read_sql(query, conn)
         
         conn.close()
@@ -355,7 +342,6 @@ def show():
     df = fetch_data_from_azure()
     df['task_level'] = pd.to_numeric(df['task_level'], errors='coerce')
 
-    # Drop rows with NaN values in task_level
     df = df.dropna(subset=['task_level'])
 
     # Convert task_level to integer

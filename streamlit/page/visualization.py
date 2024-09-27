@@ -36,10 +36,8 @@ def show():
     df['annotator_response'] = pd.to_numeric(df['annotator_response'], errors='coerce')
     df['task_level'] = pd.to_numeric(df['task_level'], errors='coerce')
 
-    # Drop rows with NaN values in task_level, direct_response, or annotator_response
     df = df.dropna(subset=['direct_response', 'annotator_response', 'task_level'])
 
-    # Convert task_level to integer (if desired)
     df['task_level'] = df['task_level'].astype(int)
 
     st.header("Interactive Visualizations")
@@ -75,6 +73,6 @@ def show():
 
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#ff9999','#66b3ff'])
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax.axis('equal')
 
     st.pyplot(fig)
