@@ -185,6 +185,8 @@ def show():
             return extract_text_from_python_script(file_content)
         elif file_extension == '.pdb':
             return extract_text_from_pdb(file_content)
+        elif file_extension == '.xlsx':
+            return extract_text_from_xlsx(file_content)
         else:
             return file_content
 
