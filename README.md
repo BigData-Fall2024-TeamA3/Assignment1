@@ -5,7 +5,7 @@
 1. [Diagrams](#diagrams)
 2. [Codelabs Document](https://codelabs-preview.appspot.com/?file_id=12x51PlTxUmD6F9uAui8ZyoWTlUt4VTFP3YCYAvrLZq4)
 3. [Video of the submission](https://youtu.be/hQujEXRkhJw)
-4. [Working app](https://stagyyy.streamlit.app/)
+4. [Working app](https://intelligentapp.streamlit.app/)
 5. [Github URL](https://github.com/BigData-Fall2024-TeamA3/Assignment1/tree/main)
 
 ## Diagrams
@@ -113,9 +113,13 @@ poetry run streamlit run app.py
 
 WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK
 
-Contribution:
-a. member1: 33%
-b. member2: 33%
+#### Contribution:
+a. Aishwarya Patil: 33%
+
+
+b. Deepak Kumar: 33%
+
+
 c. Nivedhithaa govindaraj: 33%
 
 

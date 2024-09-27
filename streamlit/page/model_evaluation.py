@@ -16,9 +16,6 @@ from io import BytesIO
 import tiktoken
 from IPython import embed
 
-
-
-# Create a session with explicit credentials
 def show():
     env_path = pathlib.Path('.') / '.env'
 
@@ -32,9 +29,7 @@ def show():
         region_name='us-east-2'
     )
 
-    # Use the session to create a client for an AWS service
     s3 = session.client('s3')
-
 
 
     driver = st.secrets['driver']
@@ -73,12 +68,9 @@ def show():
             return truncated_prompt
         return prompt
 
-    # Function to download file content from S3
     def download_file_from_s3(bucket_name, s3_file_key):
         try:
-            # Fetch the file object from S3
             file_obj = s3.get_object(Bucket=bucket_name, Key=s3_file_key)
-            # Read the file content into memory
             file_content = file_obj['Body'].read()
             
             return file_content
@@ -347,7 +339,7 @@ def show():
     def fetch_data_from_azure():
         
         # Query your table
-        query = "SELECT * FROM ai.metadata"  # Replace with your table name
+        query = "SELECT * FROM ai.metadata"
         df = pd.read_sql(query, conn)
         
         conn.close()

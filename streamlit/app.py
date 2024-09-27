@@ -56,14 +56,10 @@ if st.session_state.logged_in:
     if 'page' not in st.session_state:
         st.session_state.page = 'model_evaluation' 
     if st.session_state.page == 'visualization':
-        visualization.show()  # Replace with your actual visualization function
+        visualization.show()
     elif st.session_state.page == 'model_evaluation':
         model_evaluation.show()
          # Rerun to show the login page
-
-    # Replace this with your visualization function
-    # Replace this with your visualization function
-
 else:
     # Determine the current mode (Login or Signup)
     if 'signup_mode' not in st.session_state:
